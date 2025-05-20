@@ -8,7 +8,9 @@ app.use(cors());
 const API_KEY = process.env.RIOT_API_KEY;
 
 app.get(apisummoner, async (req, res) = {
-  const { name, tag } = req.query;
+  const name = req.query.name;
+  const tag = req.query.tag;
+
   try {
     const accountRes = await axios.get(
       `httpseurope.api.riotgames.comriotaccountv1accountsby-riot-id${name}${tag}`,
