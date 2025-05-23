@@ -34,9 +34,6 @@ app.get("/api/summoner", async (req, res) => {
     II: 50,
     I: 75
   };
-const currentScore = (tierValue[soloQ?.tier] ?? 0) + (divisionValue[soloQ?.rank] ?? 0) + (soloQ?.leaguePoints ?? 0);
-const startScore = (tierValue[startTier] ?? 0) + (divisionValue[startDivision] ?? 0) + (startLP ?? 0);
-const netGain = currentScore - startScore;
 
   try {
     const accountRes = await axios.get(
@@ -56,8 +53,16 @@ const netGain = currentScore - startScore;
 
     const soloQ = rankedRes.data.find(q => q.queueType === "RANKED_SOLO_5x5");
 
-    const currentScore = (tierValue[soloQ?.tier] ?? 0) + (divisionValue[soloQ?.rank] ?? 0) + (soloQ?.leaguePoints ?? 0);
-    const startScore = (tierValue[startTier] ?? 0) + (divisionValue[startDivision] ?? 0) + (startLP ?? 0);
+    const currentScore =
+      (tierValue[soloQ?.tier] ?? 0) +
+      (divisionValue[soloQ?.rank] ?? 0) +
+      (soloQ?.leaguePoints ?? 0);
+
+    const startScore =
+      (tierValue[startTier] ?? 0) +
+      (divisionValue[startDivision] ?? 0) +
+      (startLP ?? 0);
+
     const netGain = currentScore - startScore;
 
     res.json({
