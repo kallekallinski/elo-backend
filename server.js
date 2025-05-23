@@ -1,9 +1,6 @@
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
-const app = express();
-app.use(cors());
-
 
 const app = express();
 app.use(cors());
@@ -15,16 +12,19 @@ app.get("/api/summoner", async (req, res) => {
   const tag = req.query.tag;
 
   try {
+    // Schritt 1: Account anhand Riot ID finden
     const accountRes = await axios.get(
       `https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${name}/${tag}`,
       { headers: { "X-Riot-Token": API_KEY } }
     );
 
+    // Schritt 2: Summoner-Daten anhand puuid finden
     const summonerRes = await axios.get(
       `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${accountRes.data.puuid}`,
       { headers: { "X-Riot-Token": API_KEY } }
     );
 
+    // Schritt 3: Ranked-Daten abrufen
     const rankedRes = await axios.get(
       `https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerRes.data.id}`,
       { headers: { "X-Riot-Token": API_KEY } }
@@ -40,11 +40,11 @@ app.get("/api/summoner", async (req, res) => {
     });
 
   } catch (err) {
-    console.error(err.response?.data || err.message);
+    console.error("Fehler in API:", err.response?.data || err.message);
     res.status(500).json({ error: "Fehler beim Abrufen von Riot-Daten." });
   }
 });
 
 app.listen(3001, () => {
-  console.log("✅ Server läuft auf http://localhost:3001");
+  console.log("✅ Backend läuft auf http://localhost:3001");
 });
