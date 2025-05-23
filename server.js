@@ -10,21 +10,45 @@ const API_KEY = process.env.RIOT_API_KEY;
 app.get("/api/summoner", async (req, res) => {
   const name = req.query.name;
   const tag = req.query.tag;
+  const startTier = req.query.startTier;
+  const startDivision = req.query.startDivision;
+  const startLP = parseInt(req.query.startLP, 10);
+
+  // Tier und Division in numerische Werte umwandeln
+  const tierValue = {
+    IRON: 0,
+    BRONZE: 400,
+    SILVER: 800,
+    GOLD: 1200,
+    PLATINUM: 1600,
+    EMERALD: 2000,
+    DIAMOND: 2400,
+    MASTER: 2800,
+    GRANDMASTER: 3000,
+    CHALLENGER: 3200
+  };
+
+  const divisionValue = {
+    IV: 0,
+    III: 25,
+    II: 50,
+    I: 75
+  };
+const currentScore = (tierValue[soloQ?.tier] ?? 0) + (divisionValue[soloQ?.rank] ?? 0) + (soloQ?.leaguePoints ?? 0);
+const startScore = (tierValue[startTier] ?? 0) + (divisionValue[startDivision] ?? 0) + (startLP ?? 0);
+const netGain = currentScore - startScore;
 
   try {
-    // Schritt 1: Account anhand Riot ID finden
     const accountRes = await axios.get(
       `https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${name}/${tag}`,
       { headers: { "X-Riot-Token": API_KEY } }
     );
 
-    // Schritt 2: Summoner-Daten anhand puuid finden
     const summonerRes = await axios.get(
       `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${accountRes.data.puuid}`,
       { headers: { "X-Riot-Token": API_KEY } }
     );
 
-    // Schritt 3: Ranked-Daten abrufen
     const rankedRes = await axios.get(
       `https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerRes.data.id}`,
       { headers: { "X-Riot-Token": API_KEY } }
@@ -32,11 +56,16 @@ app.get("/api/summoner", async (req, res) => {
 
     const soloQ = rankedRes.data.find(q => q.queueType === "RANKED_SOLO_5x5");
 
+    const currentScore = (tierValue[soloQ?.tier] ?? 0) + (divisionValue[soloQ?.rank] ?? 0) + (soloQ?.leaguePoints ?? 0);
+    const startScore = (tierValue[startTier] ?? 0) + (divisionValue[startDivision] ?? 0) + (startLP ?? 0);
+    const netGain = currentScore - startScore;
+
     res.json({
       name: `${name}#${tag}`,
       lp: soloQ?.leaguePoints ?? 0,
       tier: soloQ?.tier ?? "UNRANKED",
-      rank: soloQ?.rank ?? ""
+      rank: soloQ?.rank ?? "",
+      netGain
     });
 
   } catch (err) {
