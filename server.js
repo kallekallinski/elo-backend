@@ -53,17 +53,11 @@ app.get("/api/summoner", async (req, res) => {
 
     const soloQ = rankedRes.data.find(q => q.queueType === "RANKED_SOLO_5x5");
 
-    const currentScore =
-      (tierValue[soloQ?.tier] ?? 0) +
-      (divisionValue[soloQ?.rank] ?? 0) +
-      (soloQ?.leaguePoints ?? 0);
-
-    const startScore =
-      (tierValue[startTier] ?? 0) +
-      (divisionValue[startDivision] ?? 0) +
-      (startLP ?? 0);
-
+    const currentScore = (tierValue[soloQ?.tier] ?? 0) + (divisionValue[soloQ?.rank] ?? 0) + (soloQ?.leaguePoints ?? 0);
+    const startScore = (tierValue[startTier] ?? 0) + (divisionValue[startDivision] ?? 0) + (startLP ?? 0);
     const netGain = currentScore - startScore;
+	const totalGames = soloQ?.wins + soloQ?.losses;
+
 
     res.json({
       name: `${name}#${tag}`,
@@ -71,6 +65,7 @@ app.get("/api/summoner", async (req, res) => {
       tier: soloQ?.tier ?? "UNRANKED",
       rank: soloQ?.rank ?? "",
       netGain
+	  gamesPlayed: totalGames
     });
 
   } catch (err) {
