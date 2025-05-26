@@ -14,7 +14,6 @@ app.get("/api/summoner", async (req, res) => {
   const startDivision = req.query.startDivision;
   const startLP = parseInt(req.query.startLP, 10);
 
-  // Tier und Division in numerische Werte umwandeln
   const tierValue = {
     IRON: 0,
     BRONZE: 400,
@@ -30,9 +29,9 @@ app.get("/api/summoner", async (req, res) => {
 
   const divisionValue = {
     IV: 0,
-    III: 25,
-    II: 50,
-    I: 75
+    III: 100,
+    II: 200,
+    I: 300
   };
 
   try {
@@ -56,16 +55,15 @@ app.get("/api/summoner", async (req, res) => {
     const currentScore = (tierValue[soloQ?.tier] ?? 0) + (divisionValue[soloQ?.rank] ?? 0) + (soloQ?.leaguePoints ?? 0);
     const startScore = (tierValue[startTier] ?? 0) + (divisionValue[startDivision] ?? 0) + (startLP ?? 0);
     const netGain = currentScore - startScore;
-	const totalGames = soloQ?.wins + soloQ?.losses;
-
+    const totalGames = (soloQ?.wins ?? 0) + (soloQ?.losses ?? 0);
 
     res.json({
       name: `${name}#${tag}`,
       lp: soloQ?.leaguePoints ?? 0,
       tier: soloQ?.tier ?? "UNRANKED",
       rank: soloQ?.rank ?? "",
-      netGain
-	  gamesPlayed: totalGames
+      netGain,
+      gamesPlayed: totalGames
     });
 
   } catch (err) {
